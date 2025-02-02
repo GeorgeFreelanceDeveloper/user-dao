@@ -41,13 +41,12 @@ public class UserDao {
             statement.setInt(1, userId);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                User user = new User(
+                return new User(
                         resultSet.getInt("id"),
                         resultSet.getString("email"),
                         resultSet.getString("userName"),
                         resultSet.getString("password")
                 );
-                return user;
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -72,7 +71,12 @@ public class UserDao {
         try (Connection conn = DbUtil.getConnection()) {
             PreparedStatement statement = conn.prepareStatement(DELETE_USER_QUERY);
             statement.setInt(1, userId);
-            statement.executeUpdate();
+            int rowsAffected = statement.executeUpdate();
+            if (rowsAffected == 0){
+                System.out.println("User not deleted, id does not exist");
+            } else {
+                System.out.println("User deleted");
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
