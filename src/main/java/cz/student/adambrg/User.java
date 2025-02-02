@@ -1,7 +1,9 @@
 package cz.student.adambrg;
 
+import java.util.Objects;
+
 public class User {
-    private int id;
+    private  int id;
     private String email;
     private String userName;
     private String password;
@@ -39,6 +41,18 @@ public class User {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id == user.id && Objects.equals(email, user.email) && Objects.equals(userName, user.userName) && Objects.equals(password, user.password);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, email, userName, password);
+    }
+
+    @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
@@ -47,6 +61,7 @@ public class User {
                 ", password='" + password + '\'' +
                 '}';
     }
+
 }
 
 

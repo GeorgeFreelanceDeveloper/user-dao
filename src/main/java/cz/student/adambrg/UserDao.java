@@ -93,8 +93,14 @@ public class UserDao {
         try {
             PreparedStatement statement = conn.prepareStatement(DELETE_USER);
             statement.setInt(1, userId);
-            statement.executeUpdate();
-            System.out.println("User with ID: " + userId + " has been removed");
+           int affectedRows = statement.executeUpdate();
+
+            if (affectedRows > 0) {
+                System.out.println("User with ID: " + userId + " has been successfully removed.");
+            } else {
+                System.out.println("Failed to remove user with ID: " + userId + ".");
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
             System.err.println("ERROR while deleting the user");
