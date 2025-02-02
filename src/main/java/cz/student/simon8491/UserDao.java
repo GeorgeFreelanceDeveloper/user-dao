@@ -1,7 +1,7 @@
 package cz.student.simon8491;
 
+import cz.common.DbUtil;
 import org.mindrot.jbcrypt.BCrypt;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -21,7 +21,7 @@ public class UserDao {
             SELECT * FROM users""";
 
     public void createUser(User user) {
-        try (Connection connection = DBUtil.getConnection()) {
+        try (Connection connection = DbUtil.getConnection()) {
             try (var stmtCreateUser = connection.prepareStatement
                     (CREATE_USER_QUERY, PreparedStatement.RETURN_GENERATED_KEYS)) {
                 stmtCreateUser.setString(1, user.getUserName());
@@ -45,7 +45,7 @@ public class UserDao {
     }
 
     public User readUser(int id) {
-        try (Connection connection = DBUtil.getConnection()) {
+        try (Connection connection = DbUtil.getConnection()) {
             try (var stmtReadUser = connection.prepareStatement(READ_USER_QUERY)) {
                 stmtReadUser.setInt(1, id);
                 try (var rsReadUser = stmtReadUser.executeQuery()) {
@@ -66,7 +66,7 @@ public class UserDao {
     }
 
     public void updateUser(User user) {
-        try (Connection connection = DBUtil.getConnection()) {
+        try (Connection connection = DbUtil.getConnection()) {
             try (var stmtUpdateUser = connection.prepareStatement(UPDATE_USER_QUERY)) {
                 stmtUpdateUser.setString(1, user.getUserName());
                 stmtUpdateUser.setString(2, user.getEmail());
@@ -80,7 +80,7 @@ public class UserDao {
     }
 
     public void deleteUser(int id) {
-        try (Connection connection = DBUtil.getConnection()) {
+        try (Connection connection = DbUtil.getConnection()) {
             try (var stmtDeleteUser = connection.prepareStatement(DELETE_USER_QUERY)) {
                 stmtDeleteUser.setInt(1, id);
                 stmtDeleteUser.executeUpdate();
@@ -93,7 +93,7 @@ public class UserDao {
 
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
-        try (Connection connection = DBUtil.getConnection()) {
+        try (Connection connection = DbUtil.getConnection()) {
             try (var stmtFindAll = connection.prepareStatement(FIND_ALL_USERS_QUERY)) {
                 try (var rsFindAll = stmtFindAll.executeQuery()) {
                     while (rsFindAll.next()) {
