@@ -43,8 +43,8 @@ public class UserDao {
             if (resultSet.next()) {
                 return new User(
                         resultSet.getInt("id"),
-                        resultSet.getString("email"),
                         resultSet.getString("userName"),
+                        resultSet.getString("email"),
                         resultSet.getString("password")
                 );
             }

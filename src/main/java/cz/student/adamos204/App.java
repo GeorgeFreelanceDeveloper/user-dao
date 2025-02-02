@@ -9,14 +9,14 @@ public class App {
     private static final Scanner scanner = new Scanner(System.in);
     private static final String[] allowedCommands = {"create", "update", "delete", "finduser", "selectall", "info", "exit"};
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
 
         System.out.println("System for user control on-line");
         displayAllowedCommands(allowedCommands);
-        while (true){
+        while (true) {
             System.out.println("Waiting for next command");
             final String command = scanner.nextLine();
-            switch (command){
+            switch (command) {
                 case "create" -> createUser();
                 case "update" -> updateUser();
                 case "delete" -> deleteUser();
@@ -41,41 +41,38 @@ public class App {
     }
 
     private static void findUser() {
-        while (true){
+        while (true) {
             try {
                 System.out.println("Enter user id to search database");
                 final int userId = Integer.parseInt(scanner.nextLine());
                 System.out.println(userDao.read(userId));
                 break;
-            } catch (NumberFormatException e){
+            } catch (NumberFormatException e) {
                 System.out.println("Enter valid id");
             }
         }
     }
 
     private static void deleteUser() {
-        while (true){
+        while (true) {
             try {
                 System.out.println("Enter user id to delete");
                 final int userId = Integer.parseInt(scanner.nextLine());
                 userDao.delete(userId);
                 break;
-            } catch (NumberFormatException e){
+            } catch (NumberFormatException e) {
                 System.out.println("Enter valid id");
             }
         }
     }
 
     private static void updateUser() {
-        String newUsername = null;
-        String newEmail = null;
-        String newPasswd = null;
         User user = null;
 
-        while (true){
+        while (true) {
             try {
-                while (user == null){
-                    System.out.println("Enter user id to update user information");
+                while (user == null) {
+                    System.out.println("Enter user id to update user information:");
                     final int userId = Integer.parseInt(scanner.nextLine());
                     user = userDao.read(userId);
 
@@ -84,47 +81,50 @@ public class App {
                     }
                 }
 
-                while (true){
-                    System.out.println("Which part do you want to update? (username, email, password) Or 'quit' to cancel updates");
+                while (true) {
+                    System.out.println("Which part do you want to update? (username, email, password) Or 'quit' to cancel updates:");
                     final String inputUpdate = scanner.nextLine();
-                    switch (inputUpdate){
+
+                    switch (inputUpdate) {
                         case "username" -> {
-                            newUsername = updateUserInput("Enter new username", "Username cannot be null", input -> !input.isEmpty());
-                            System.out.println("Username changed");
+                            String newUsername = updateUserInput("Enter new username", "Username cannot be null", input -> !input.isEmpty());
+                            user.setUserName(newUsername);
+                            System.out.println("Username changed.");
                         }
                         case "email" -> {
-                            newEmail = updateUserInput("Enter new email", "Email cannot be null", input -> !input.isEmpty());
-                            System.out.println("Email changed");
+                            String newEmail = updateUserInput("Enter new email", "Email cannot be null", input -> !input.isEmpty());
+                            user.setEmail(newEmail);
+                            System.out.println("Email changed.");
                         }
                         case "password" -> {
-                            newPasswd = updateUserInput("Enter new password", "Password cannot be null", input -> !input.isEmpty());
-                            System.out.println("Password changed");
+                            String newPasswd = updateUserInput("Enter new password", "Password cannot be null", input -> !input.isEmpty());
+                            user.setPassword(newPasswd);
+                            System.out.println("Password changed.");
                         }
                         case "quit" -> {
-                            if (newUsername != null) user.setUserName(newUsername);
-                            if (newEmail != null) user.setEmail(newEmail);
-                            if (newPasswd != null) user.setPassword(newPasswd);
                             userDao.update(user);
-                            System.out.println("User updated");
+                            System.out.println(user);
+                            System.out.println("User updated successfully.");
                             return;
                         }
-                        default -> System.out.println("Invalid option selected");
+                        default -> System.out.println("Invalid option selected.");
                     }
                 }
-            } catch (NumberFormatException e){
-                System.out.println("Enter valid id");
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input! Please enter a numeric user ID.");
             }
         }
     }
 
-    public static void displayAllowedCommands(String[] commands){
+
+    public static void displayAllowedCommands(String[] commands) {
         System.out.println("Allowed commands: ");
-        for (String command: commands){
+        for (String command : commands) {
             System.out.println("# " + command);
         }
     }
 
-    public static void createUser(){
+    public static void createUser() {
         final String email = updateUserInput("Enter email", "Email cannot be null", input -> !input.isEmpty());
         final String userName = updateUserInput("Enter username", "Username cannot be null", input -> !input.isEmpty());
         final String passwd = updateUserInput("Enter password", "password cannot be null", input -> !input.isEmpty());
