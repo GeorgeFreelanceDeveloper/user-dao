@@ -36,7 +36,8 @@ public class UserDao {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Database connection error\n" + e.getMessage());
+            System.out.println("Problem with creating user in database:\n" + e.getMessage());
+            e.printStackTrace(System.err);
         }
     }
 
@@ -60,7 +61,8 @@ public class UserDao {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Database connection error\n" + e.getMessage());
+            System.out.println("User cannot be read:\n" + e.getMessage());
+            e.printStackTrace(System.err);
         }
         return null;
     }
@@ -75,7 +77,8 @@ public class UserDao {
                 stmtUpdateUser.executeUpdate();
             }
         } catch (SQLException e) {
-            System.err.println("Database connection error\n" + e.getMessage());
+            System.out.println("Problem with updating user:\n" + e.getMessage());
+            e.printStackTrace(System.err);
         }
     }
 
@@ -83,11 +86,16 @@ public class UserDao {
         try (Connection connection = DbUtil.getConnection()) {
             try (var stmtDeleteUser = connection.prepareStatement(DELETE_USER_QUERY)) {
                 stmtDeleteUser.setInt(1, id);
-                stmtDeleteUser.executeUpdate();
-                System.out.println("Deleted user with ID: " + id);
+                int affectedRows = stmtDeleteUser.executeUpdate();
+                if (affectedRows > 0) {
+                    System.out.printf("User with id %s deleted successfully.%n", id);
+                } else {
+                    System.out.printf("User delete with id %s failed. No rows affected.", id);
+                }
             }
         } catch (SQLException e) {
-            System.err.println("Database connection error\n" + e.getMessage());
+            System.out.println("User cannot be deleted:\n" + e.getMessage());
+            e.printStackTrace(System.err);
         }
     }
 
@@ -108,7 +116,8 @@ public class UserDao {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Database connection error\n" + e.getMessage());
+            System.out.println("Users database problem:\n" + e.getMessage());
+            e.printStackTrace(System.err);
             return null;
         }
     }
