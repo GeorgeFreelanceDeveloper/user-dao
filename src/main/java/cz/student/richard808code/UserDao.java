@@ -29,35 +29,37 @@ public class UserDao {
     public User create(User user) {
         try (Connection conn = DbUtil.getConnection()) {
 
-            PreparedStatement preStmt = conn.prepareStatement(CREATE_USER_QUERY, PreparedStatement.RETURN_GENERATED_KEYS);
+            final PreparedStatement preStmt = conn.prepareStatement(CREATE_USER_QUERY, PreparedStatement.RETURN_GENERATED_KEYS);
             preStmt.setString(1, user.getUserName());
             preStmt.setString(2, user.getEmail());
             preStmt.setString(3, hashPassword(user.getPassword()));
             preStmt.executeUpdate();
 
-            ResultSet rs = preStmt.getGeneratedKeys();
+            final ResultSet rs = preStmt.getGeneratedKeys();
             if (rs.next()) {
                 int id = rs.getInt(1);
                 System.out.println("Inserted ID: " + id);
                 user.setId(id);
+                System.out.println("Created user with ID: " + id);
             }
+            return user;
 
         } catch (SQLException e) {
-            System.err.println("ERROR: Cannot connect to database");
-            e.printStackTrace();
+            System.err.println("Problem with creating user in database: " + e.getMessage());
+            e.printStackTrace(System.err);
             return null;
         }
-        return user;
     }
 
     public User read(int userId) {
-        User user = null;
+
         try (Connection connection = DbUtil.getConnection()) {
-            PreparedStatement preStmt = connection.prepareStatement(READ_USER_QUERY);
+            final PreparedStatement preStmt = connection.prepareStatement(READ_USER_QUERY);
             preStmt.setInt(1, userId);
 
-            ResultSet rs = preStmt.executeQuery();
+            final ResultSet rs = preStmt.executeQuery();
 
+            User user = null;
             if (rs.next()) {
                 user = new User();
                 user.setId(rs.getInt("id"));
@@ -65,76 +67,65 @@ public class UserDao {
                 user.setEmail(rs.getString("email"));
                 user.setPassword(rs.getString("password"));
             }
+            return user;
 
         } catch (SQLException e) {
-            System.err.println("ERROR: Cannot connect to database");
-            e.printStackTrace();
+            System.err.println("Could not read user with ID: " + userId + "from database." + e.getMessage());
+            e.printStackTrace(System.err);
             return null;
         }
-        return user;
     }
 
     public void update(User user) {
-        User updatedUser = null;
-        UserDao userDao = new UserDao();
-        updatedUser = userDao.read(user.getId());
-
-        if (updatedUser != null) {
-            updatedUser.setUserName(user.getUserName());
-            updatedUser.setEmail(user.getEmail());
-            updatedUser.setPassword((hashPassword(user.getPassword())));
-        }
 
         try (Connection connection = DbUtil.getConnection()) {
-            PreparedStatement preStmt = connection.prepareStatement(UPDATE_USER_QUERY);
+            final PreparedStatement preStmt = connection.prepareStatement(UPDATE_USER_QUERY);
             preStmt.setString(1, user.getUserName());
             preStmt.setString(2, user.getEmail());
-            if (!updatedUser.getPassword().equals(user.getPassword())) {
-                preStmt.setString(3, hashPassword(user.getPassword()));
-            }
+            preStmt.setString(3, hashPassword(user.getPassword()));
             preStmt.setInt(4, user.getId());
 
-            int affectedRows = preStmt.executeUpdate();
+            final int affectedRows = preStmt.executeUpdate();
 
             if (affectedRows > 0) {
-                System.out.println("User updated successfully.");
+                System.out.println("User with id " + user.getId() + " updated successfully.");
             } else {
                 System.out.println("User update failed. No rows affected.");
             }
 
         } catch (SQLException e) {
-            System.err.println("ERROR: Cannot connect to database");
-            e.printStackTrace();
+            System.err.println("Could not update user with id " + user.getId() + " in database: " + e.getMessage());
+            e.printStackTrace(System.err);
         }
     }
 
     public void delete(int userId) {
         try (Connection connection = DbUtil.getConnection()) {
-            PreparedStatement preStmt = connection.prepareStatement(DELETE_USER_QUERY);
+            final PreparedStatement preStmt = connection.prepareStatement(DELETE_USER_QUERY);
             preStmt.setInt(1, userId);
 
-            int affectedRows = preStmt.executeUpdate();
+            final int affectedRows = preStmt.executeUpdate();
 
             if (affectedRows > 0) {
-                System.out.println("User deleted successfully.");
+                System.out.println("User with id " + userId + " deleted successfully.");
             } else {
-                System.out.println("User delete failed. No rows affected.");
+                System.out.println("User with id " + userId + "deletion failed. No rows affected.");
             }
 
         } catch (SQLException e) {
-            System.err.println("ERROR: Cannot connect to database");
-            e.printStackTrace();
+            System.err.println("Could not delete user with id " + userId + "from database: " + e.getMessage());
+            e.printStackTrace(System.err);
         }
     }
 
     public User[] findAll() {
-        User [] users = new User[0];
-        try(Connection connection = DbUtil.getConnection()){
-            PreparedStatement preStmt = connection.prepareStatement(SELECT_ALL_USERS_QUERY);
-            ResultSet rs = preStmt.executeQuery();
+        User[] users = new User[0];
+        try (Connection connection = DbUtil.getConnection()) {
+            final PreparedStatement preStmt = connection.prepareStatement(SELECT_ALL_USERS_QUERY);
+            final ResultSet rs = preStmt.executeQuery();
 
             while (rs.next()) {
-                User user = new User();
+                final User user = new User();
                 user.setId(rs.getInt("id"));
                 user.setUserName(rs.getString("username"));
                 user.setEmail(rs.getString("email"));
@@ -143,7 +134,7 @@ public class UserDao {
                 users = addToArray(user, users);
             }
 
-        }catch (SQLException e){
+        } catch (SQLException e) {
             System.err.println("ERROR: Cannot connect to database");
             e.printStackTrace();
         }

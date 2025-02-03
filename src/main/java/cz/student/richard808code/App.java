@@ -2,32 +2,31 @@ package cz.student.richard808code;
 
 public class App {
     public static void main(String[] args) {
+        final UserDao userDao = new UserDao();
+
         // Vytvoření uživatele
 
-        User user1 = new User();
+        final User user1 = new User();
         user1.setUserName("username1");
         user1.setEmail("email1@gmail.com");
         user1.setPassword("password1");
 
-        UserDao userDao = new UserDao();
-
-        //Test metody create.
-        User createdUser1 = userDao.create(user1);
+        //Test metody create
+        final User createdUser1 = userDao.create(user1);
 
         System.out.println("User created with ID: " + createdUser1.getId());
 
 
-        //Test metody read pro existující záznam.
+        //Test metody read pro existující záznam
 
-        System.out.println(userDao.read(1));
+        System.out.println("Result of finding user with id = 1: " + userDao.read(1));
 
-        //Test metody read pro neexistující záznam.
+        //Test metody read pro neexistující záznam
 
-        System.out.println(userDao.read(2));
+        System.out.println("Result of finding user with id = 2: " + userDao.read(2));
 
         //Test metody update
 
-        userDao.read(user1.getId());
         user1.setUserName("username2");
         user1.setEmail("email2@gmail.com");
         user1.setPassword("password2");
@@ -35,7 +34,7 @@ public class App {
 
         //Test metody findAll
 
-        User[] users = userDao.findAll();
+        final User[] users = userDao.findAll();
 
         System.out.println("Number of users: " + users.length);
 
