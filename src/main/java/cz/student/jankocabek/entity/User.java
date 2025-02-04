@@ -1,6 +1,6 @@
 package cz.student.jankocabek.entity;
 
-import cz.student.jankocabek.utils.PasswordHandler;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.Objects;
 
@@ -10,7 +10,7 @@ public class User {
     private String passHash;
     private String email;
     private String salt;
-    private static final PasswordHandler passwordHandler = PasswordHandler.getInstance();
+
 
     public User(int id, String userName, String email, String passHash, String salt) {
         this.id = id;
@@ -24,16 +24,14 @@ public class User {
         this.id = 0;
         this.userName = userName;
         this.email = email;
-        this.passHash = passwordHandler.getHashedPass(password);
-        this.salt = passwordHandler.getLastSalt();
+        this.passHash = getHashedPass(password);
     }
 
     public User(int id, String userName, String email, String password) {
         this.id = id;
         this.userName = userName;
         this.email = email;
-        this.passHash = passwordHandler.getHashedPass(password);
-        this.salt = passwordHandler.getLastSalt();
+        this.passHash = getHashedPass(password);
     }
 
     public int getId() {
@@ -57,8 +55,7 @@ public class User {
     }
 
     public void setPassword(String password) {
-        this.passHash = passwordHandler.getHashedPass(password);
-        this.salt = passwordHandler.getLastSalt();
+        this.passHash = getHashedPass(password);
     }
 
     public void setEmail(String email) {
@@ -71,6 +68,20 @@ public class User {
 
     public String getSalt() {
         return salt;
+    }
+
+
+    public String getHashedPass(String password) {
+        return BCrypt.hashpw(password, generateSalt());
+    }
+
+    private String generateSalt() {
+        salt = BCrypt.gensalt();
+        return salt;
+    }
+
+    public boolean checkPassword(String password) {
+        return BCrypt.checkpw(password, this.passHash);
     }
 
     @Override
