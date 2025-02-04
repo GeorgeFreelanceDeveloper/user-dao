@@ -5,7 +5,7 @@ import cz.student.jankocabek.entity.UserDao;
 
 public class App {
     public static void main(String[] args) {
-        UserDao dao = new UserDao();
+        final UserDao dao = new UserDao();
         System.out.printf("User:\n%s\n added", dao.create(new User("test01", "test1@seznam.cz", "147asdF")));
         System.out.printf("User:\n%s\n added", dao.create(new User("test02", "ahoj@gmail.com", "qwerty257K")));
         System.out.printf("User:\n%s\n added", dao.create(new User("test03", "strecha@info.org", "147asdF")));
@@ -22,10 +22,10 @@ public class App {
         updateUser.setEmail("update3@info.org");
         updateUser.setPassword("heslotest");
         dao.update(updateUser);
-        System.out.println(dao.findById(1));
+        System.out.printf("Find user with ID 1: %s%n", dao.findById(1));
         System.out.println();
 
-        System.out.printf("Was successfully deleted? %s", dao.delete(3));
+        System.out.printf("Was user with ID 3 successfully deleted? %s", dao.delete(3));
 
         for (User users : dao.findAll()) {
             System.out.println(users);
