@@ -1,8 +1,10 @@
-package cz.student.jankocabek.Entity;
+package cz.student.jankocabek.entity;
 
 import cz.student.jankocabek.utils.PasswordHandler;
 
-public class Users {
+import java.util.Objects;
+
+public class User {
     private int id;
     private String userName;
     private String passHash;
@@ -10,7 +12,7 @@ public class Users {
     private String salt;
     private static final PasswordHandler passwordHandler = PasswordHandler.getInstance();
 
-    public Users(int id, String userName, String email,String passHash, String salt) {
+    public User(int id, String userName, String email, String passHash, String salt) {
         this.id = id;
         this.userName = userName;
         this.passHash = passHash;
@@ -18,7 +20,7 @@ public class Users {
         this.salt = salt;
     }
 
-    public Users(String userName, String email, String password) {
+    public User(String userName, String email, String password) {
         this.id = 0;
         this.userName = userName;
         this.email = email;
@@ -26,7 +28,7 @@ public class Users {
         this.salt = passwordHandler.getLastSalt();
     }
 
-    public Users(int id, String userName, String email, String password) {
+    public User(int id, String userName, String email, String password) {
         this.id = id;
         this.userName = userName;
         this.email = email;
@@ -80,5 +82,17 @@ public class Users {
                 ", email='" + email + '\'' +
                 ", salt='" + salt + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return getId() == user.getId() && Objects.equals(getUserName(), user.getUserName()) && Objects.equals(getPassHash(), user.getPassHash()) && Objects.equals(getEmail(), user.getEmail()) && Objects.equals(getSalt(), user.getSalt());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getUserName(), getPassHash(), getEmail(), getSalt());
     }
 }

@@ -1,4 +1,4 @@
-package cz.student.jankocabek.Entity;
+package cz.student.jankocabek.entity;
 
 import cz.common.DbUtil;
 
@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class DAO_Users {
+public class UserDao {
     private static final String CREATE_USER_QUERY =
             "INSERT INTO users(username, email, password,salt) VALUES (?, ?, ?,?)";
     private static final String FIND_USER_QUERY =
@@ -21,7 +21,7 @@ public class DAO_Users {
     private static final String FIND_LAST_USER_QUERY =
             "SELECT * FROM users ORDER BY id DESC LIMIT 1";
 
-    public Users create(Users user) {
+    public User create(User user) {
         try (Connection connection = DbUtil.getConnection()) {
             PreparedStatement ps = connection.prepareStatement(CREATE_USER_QUERY, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, user.getUserName());
@@ -40,13 +40,13 @@ public class DAO_Users {
         }
     }
 
-    public Users findById(int id) {
+    public User findById(int id) {
         try (Connection connection = DbUtil.getConnection()) {
             PreparedStatement ps = connection.prepareStatement(FIND_USER_QUERY);
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return new Users(rs.getInt(1),
+                return new User(rs.getInt(1),
                         rs.getString("username"),
                         rs.getString("email"),
                         rs.getString("password"),
@@ -59,7 +59,7 @@ public class DAO_Users {
         }
     }
 
-    public void update(Users user) {
+    public void update(User user) {
         try (Connection connection = DbUtil.getConnection()) {
             PreparedStatement ps = connection.prepareStatement(UPDATE_USER_QUERY);
             ps.setInt(5, user.getId());
@@ -84,13 +84,13 @@ public class DAO_Users {
         return false;
     }
 
-    public List<Users> findAll() {
+    public List<User> findAll() {
         try (Connection connection = DbUtil.getConnection()) {
             PreparedStatement ps = connection.prepareStatement(FINDALL_USER_QUERY);
             ResultSet rs = ps.executeQuery();
-            List<Users> users = new ArrayList<>();
+            List<User> users = new ArrayList<>();
             while (rs.next()) {
-                users.add(new Users(rs.getInt(1),
+                users.add(new User(rs.getInt(1),
                         rs.getString("username"),
                         rs.getString("email"),
                         rs.getString("password"),
@@ -104,12 +104,12 @@ public class DAO_Users {
         }
     }
 
-    public Users findLast() {
+    public User findLast() {
         try (Connection connection = DbUtil.getConnection()) {
             PreparedStatement ps = connection.prepareStatement(FIND_LAST_USER_QUERY);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return new Users(rs.getInt(1), rs.getString("username"), rs.getString("email"), rs.getString("password"), rs.getString("salt"));
+                return new User(rs.getInt(1), rs.getString("username"), rs.getString("email"), rs.getString("password"), rs.getString("salt"));
             }
             return null;
         } catch (SQLException e) {
