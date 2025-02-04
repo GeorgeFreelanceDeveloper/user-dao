@@ -9,16 +9,6 @@ public class User {
     private String userName;
     private String passHash;
     private String email;
-    private String salt;
-
-
-    public User(int id, String userName, String email, String passHash, String salt) {
-        this.id = id;
-        this.userName = userName;
-        this.passHash = passHash;
-        this.email = email;
-        this.salt = salt;
-    }
 
     public User(String userName, String email, String password) {
         this.id = 0;
@@ -66,18 +56,12 @@ public class User {
         this.id = id;
     }
 
-    public String getSalt() {
-        return salt;
-    }
-
-
-    public String getHashedPass(String password) {
+    private String getHashedPass(String password) {
         return BCrypt.hashpw(password, generateSalt());
     }
 
     private String generateSalt() {
-        salt = BCrypt.gensalt();
-        return salt;
+        return BCrypt.gensalt();
     }
 
     public boolean checkPassword(String password) {
@@ -86,12 +70,11 @@ public class User {
 
     @Override
     public String toString() {
-        return "Users{" +
+        return "User{" +
                 "id=" + id +
                 ", userName='" + userName + '\'' +
                 ", passHash='" + passHash + '\'' +
                 ", email='" + email + '\'' +
-                ", salt='" + salt + '\'' +
                 '}';
     }
 
@@ -99,11 +82,11 @@ public class User {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return getId() == user.getId() && Objects.equals(getUserName(), user.getUserName()) && Objects.equals(getPassHash(), user.getPassHash()) && Objects.equals(getEmail(), user.getEmail()) && Objects.equals(getSalt(), user.getSalt());
+        return getId() == user.getId() && Objects.equals(getUserName(), user.getUserName()) && Objects.equals(getPassHash(), user.getPassHash()) && Objects.equals(getEmail(), user.getEmail());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getUserName(), getPassHash(), getEmail(), getSalt());
+        return Objects.hash(getId(), getUserName(), getPassHash(), getEmail());
     }
 }

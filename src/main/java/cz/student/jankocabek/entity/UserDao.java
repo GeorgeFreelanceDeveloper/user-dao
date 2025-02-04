@@ -9,11 +9,11 @@ import java.util.List;
 
 public class UserDao {
     private static final String CREATE_USER_QUERY =
-            "INSERT INTO users(username, email, password,salt) VALUES (?, ?, ?,?)";
+            "INSERT INTO users(username, email, password) VALUES (?, ?, ?)";
     private static final String FIND_USER_QUERY =
             "SELECT * FROM users WHERE id = ?";
     private static final String UPDATE_USER_QUERY =
-            "UPDATE users SET username = ?, email = ?, password = ?, salt=? WHERE  id = ?";
+            "UPDATE users SET username = ?, email = ?, password = ? WHERE  id = ?";
     private static final String DELETE_USER_QUERY =
             "DELETE FROM users WHERE id = ?";
     private static final String FINDALL_USER_QUERY =
@@ -27,7 +27,6 @@ public class UserDao {
             ps.setString(1, user.getUserName());
             ps.setString(2, user.getEmail());
             ps.setString(3, user.getPassHash());
-            ps.setString(4, user.getSalt());
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
@@ -35,7 +34,7 @@ public class UserDao {
             }
             return user;
         } catch (SQLException e) {
-            System.err.println(e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }
@@ -49,12 +48,11 @@ public class UserDao {
                 return new User(rs.getInt(1),
                         rs.getString("username"),
                         rs.getString("email"),
-                        rs.getString("password"),
-                        rs.getString("salt"));
+                        rs.getString("password"));
             }
             return null;
         } catch (SQLException e) {
-            System.err.println(e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }
@@ -62,14 +60,13 @@ public class UserDao {
     public void update(User user) {
         try (Connection connection = DbUtil.getConnection()) {
             PreparedStatement ps = connection.prepareStatement(UPDATE_USER_QUERY);
-            ps.setInt(5, user.getId());
+            ps.setInt(4, user.getId());
             ps.setString(1, user.getUserName());
             ps.setString(2, user.getEmail());
             ps.setString(3, user.getPassHash());
-            ps.setString(4, user.getSalt());
             ps.executeUpdate();
         } catch (SQLException e) {
-            System.err.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -79,7 +76,7 @@ public class UserDao {
             ps.setInt(1, userId);
             return ps.executeUpdate() != 0;
         } catch (SQLException e) {
-            System.err.println(e.getMessage());
+            e.printStackTrace();
         }
         return false;
     }
@@ -93,13 +90,11 @@ public class UserDao {
                 users.add(new User(rs.getInt(1),
                         rs.getString("username"),
                         rs.getString("email"),
-                        rs.getString("password"),
-                        rs.getString("salt")));
-
+                        rs.getString("password")));
             }
             return users;
         } catch (SQLException e) {
-            System.err.println(e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }
@@ -109,11 +104,11 @@ public class UserDao {
             PreparedStatement ps = connection.prepareStatement(FIND_LAST_USER_QUERY);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return new User(rs.getInt(1), rs.getString("username"), rs.getString("email"), rs.getString("password"), rs.getString("salt"));
+                return new User(rs.getInt(1), rs.getString("username"), rs.getString("email"), rs.getString("password"));
             }
             return null;
         } catch (SQLException e) {
-            System.err.println(e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }
