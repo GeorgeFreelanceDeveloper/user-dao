@@ -18,13 +18,12 @@ public class UserDao {
 
     public User create(User user) {
         try (Connection conn = DbUtil.getConnection()) {
-            PreparedStatement statement =
-                    conn.prepareStatement(CREATE_USER_QUERY, Statement.RETURN_GENERATED_KEYS);
+            final PreparedStatement statement = conn.prepareStatement(CREATE_USER_QUERY, Statement.RETURN_GENERATED_KEYS);
             statement.setString(1, user.getUserName());
             statement.setString(2, user.getEmail());
             statement.setString(3, hashPassword(user.getPassword()));
             statement.executeUpdate();
-            ResultSet resultSet = statement.getGeneratedKeys();
+            final ResultSet resultSet = statement.getGeneratedKeys();
             if (resultSet.next()) {
                 user.setId(resultSet.getInt(1));
             }
@@ -38,9 +37,9 @@ public class UserDao {
     }
     public User read(int userId) {
         try (Connection conn = DbUtil.getConnection()) {
-            PreparedStatement statement = conn.prepareStatement("SELECT * FROM users WHERE id = ?");
+            final PreparedStatement statement = conn.prepareStatement("SELECT * FROM users WHERE id = ?");
             statement.setInt(1, userId);
-            ResultSet resultSet = statement.executeQuery();
+            final ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 String username = resultSet.getString("username");
                 String email = resultSet.getString("email");
@@ -57,25 +56,20 @@ public class UserDao {
         }
     }
     public void update(User user) {
-        final int id = user.getId();
         try (Connection conn = DbUtil.getConnection(); Scanner sc = new Scanner(System.in)) {
-            System.out.println("Enter username: ");
-            String username = sc.nextLine();
-            System.out.println("Enter email: ");
-            String email = sc.nextLine();
-            System.out.println("Enter password: ");
-            String password = sc.nextLine();
-            PreparedStatement statement = conn.prepareStatement("UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?");
-            statement.setString(1, username);
-            statement.setString(2, email);
-            statement.setString(3, hashPassword(password));
-            statement.setInt(4, id);
-            statement.executeUpdate();
-            user.setUserName(username);
-            user.setEmail(email);
-            user.setPassword(password);
-            user.setId(id);
-            System.out.println("Updated user: " + user.toString());
+
+            final PreparedStatement statement = conn.prepareStatement("UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?");
+            statement.setString(1, user.getUserName());
+            statement.setString(2, user.getEmail());
+            statement.setString(3, hashPassword(user.getPassword()));
+            statement.setInt(4, user.getId());
+
+            final int affectedRows = statement.executeUpdate();
+            if (affectedRows > 0) {
+                System.out.println("User with id " + user.getId() + " updated successfully.");
+            } else {
+                System.out.println("User update failed. No rows affected.");
+            }
         } catch (SQLException e ) {
             System.out.println("Error, user update failed.");
             throw new RuntimeException();
@@ -83,7 +77,7 @@ public class UserDao {
     }
     public void delete(int userId) {
         try (Connection conn = DbUtil.getConnection()) {
-            PreparedStatement statement = conn.prepareStatement("DELETE FROM users WHERE id = ?");
+            final PreparedStatement statement = conn.prepareStatement("DELETE FROM users WHERE id = ?");
             statement.setInt(1, userId);
             int affectedRows = statement.executeUpdate();
             if (affectedRows > 0) {
@@ -92,8 +86,8 @@ public class UserDao {
                 System.out.println("User delete with id %s failed. No rows affected.".formatted(userId));
             }
         } catch (SQLException e) {
-            System.out.println("Error, user deletion failed.");
-            throw new RuntimeException();
+            System.out.println("Error, user deletion failed. " + e.getMessage());
+            throw new RuntimeException(e);
         }
     }
     private User[] addToArray(User u, User[] users) {
@@ -104,17 +98,18 @@ public class UserDao {
     public User [] readAll() {
         ArrayList<User> list = new ArrayList<>();
         try (Connection conn = DbUtil.getConnection()) {
-            PreparedStatement statement = conn.prepareStatement("SELECT * FROM users");
-            ResultSet resultSet = statement.executeQuery();
+            final PreparedStatement statement = conn.prepareStatement("SELECT * FROM users");
+            final ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
-                String username = resultSet.getString("username");
-                String email = resultSet.getString("email");
-                String password = resultSet.getString("password");
-                User user = new User(id, username, email, password);
+                final String username = resultSet.getString("username");
+                final String email = resultSet.getString("email");
+                final String password = resultSet.getString("password");
+                final User user = new User(id, username, email, password);
                 list.add(user);
             }
         } catch (SQLException e) {
+            System.err.println("ERROR: Cannot connect to database");
             e.printStackTrace();
         }
         return list.toArray(new User[list.size()]);
