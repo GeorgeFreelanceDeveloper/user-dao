@@ -6,6 +6,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class UserDao {
 
@@ -60,20 +61,27 @@ public class UserDao {
     }
 
     public void updateUser(int id, String userName, String email, String password) {
+        User userLoaded = getUserById(id);
 
-        try (Connection conn = DbUtil.getConnection()) {
-            PreparedStatement statement =
-                    conn.prepareStatement(UPDATE_USER_QUERY);
-            statement.setString(1, userName);
-            statement.setString(2, email);
-            statement.setString(3, hashPassword(password));
-            statement.setString(4, Integer.toString(id));
-            statement.executeUpdate();
-            System.out.println("User " + userName + " updated successfully");
-        } catch (SQLException e) {
-            System.err.println("Problem with updating user in the database: " + e.getMessage());
-            e.printStackTrace(System.err);
+        if (Objects.nonNull(userLoaded)) {
+            try (Connection conn = DbUtil.getConnection()) {
+                PreparedStatement statement =
+                        conn.prepareStatement(UPDATE_USER_QUERY);
+                statement.setString(1, userName);
+                statement.setString(2, email);
+                statement.setString(3, hashPassword(password));
+                statement.setString(4, Integer.toString(id));
+                statement.executeUpdate();
+                System.out.println("User " + userName + " with id " + id + " was updated successfully");
+            } catch (SQLException e) {
+                System.err.println("Problem with updating user in the database: " + e.getMessage());
+                e.printStackTrace(System.err);
+            }
+        } else {
+            System.out.println("No user with the given id was found");
         }
+
+
     }
 
     public void deleteUserById(int userId) {
