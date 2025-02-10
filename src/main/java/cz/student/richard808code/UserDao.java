@@ -107,9 +107,9 @@ public class UserDao {
             final int affectedRows = preStmt.executeUpdate();
 
             if (affectedRows > 0) {
-                System.out.println("User with id " + userId + " deleted successfully.");
+                System.out.println("User with id %s deleted successfully.".formatted(userId));
             } else {
-                System.out.println("User with id " + userId + "deletion failed. No rows affected.");
+                System.out.println("User delete with id %s failed. No rows affected.".formatted(userId));
             }
 
         } catch (SQLException e) {
