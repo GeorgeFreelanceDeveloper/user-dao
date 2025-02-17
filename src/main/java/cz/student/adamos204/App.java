@@ -87,17 +87,17 @@ public class App {
 
                     switch (inputUpdate) {
                         case "username" -> {
-                            String newUsername = updateUserInput("Enter new username", "Username cannot be null", input -> !input.isEmpty());
+                            String newUsername = readUserInput("Enter new username", "Username cannot be null", input -> !input.isEmpty());
                             user.setUserName(newUsername);
                             System.out.println("Username changed.");
                         }
                         case "email" -> {
-                            String newEmail = updateUserInput("Enter new email", "Email cannot be null", input -> !input.isEmpty());
+                            String newEmail = readUserInput("Enter new email", "Email cannot be null", input -> !input.isEmpty());
                             user.setEmail(newEmail);
                             System.out.println("Email changed.");
                         }
                         case "password" -> {
-                            String newPasswd = updateUserInput("Enter new password", "Password cannot be null", input -> !input.isEmpty());
+                            String newPasswd = readUserInput("Enter new password", "Password cannot be null", input -> !input.isEmpty());
                             user.setPassword(newPasswd);
                             System.out.println("Password changed.");
                         }
@@ -125,15 +125,15 @@ public class App {
     }
 
     public static void createUser() {
-        final String email = updateUserInput("Enter email", "Email cannot be null", input -> !input.isEmpty());
-        final String userName = updateUserInput("Enter username", "Username cannot be null", input -> !input.isEmpty());
-        final String passwd = updateUserInput("Enter password", "password cannot be null", input -> !input.isEmpty());
+        final String email = readUserInput("Enter email", "Email cannot be null", input -> !input.isEmpty());
+        final String userName = readUserInput("Enter username", "Username cannot be null", input -> !input.isEmpty());
+        final String passwd = readUserInput("Enter password", "password cannot be null", input -> !input.isEmpty());
         final User user = new User(userName, email, passwd);
         userDao.create(user);
         System.out.println("User created with given id: " + user.getId());
     }
 
-    private static String updateUserInput(String promptMessage, String errorMessage, Predicate<String> validator) {
+    private static String readUserInput(String promptMessage, String errorMessage, Predicate<String> validator) {
         while (true) {
             System.out.println(promptMessage);
             String input = scanner.nextLine().trim();
