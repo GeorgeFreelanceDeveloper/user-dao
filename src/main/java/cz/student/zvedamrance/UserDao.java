@@ -11,6 +11,15 @@ import java.util.Scanner;
 public class UserDao {
     private static final String CREATE_USER_QUERY =
             "INSERT INTO users(username, email, password) VALUES (?, ?, ?)";
+    private static final String SELECT_USER_BY_ID =
+            "SELECT * FROM users WHERE id = ?";
+    private static final String UPDATE_USER =
+            "UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?";
+    private static final String DELETE_USER =
+            "DELETE FROM users WHERE id = ?";
+    private static final String SELECT_ALL =
+            "SELECT * FROM users";
+
 
     public String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());
@@ -37,7 +46,7 @@ public class UserDao {
     }
     public User read(int userId) {
         try (Connection conn = DbUtil.getConnection()) {
-            final PreparedStatement statement = conn.prepareStatement("SELECT * FROM users WHERE id = ?");
+            final PreparedStatement statement = conn.prepareStatement(SELECT_USER_BY_ID);
             statement.setInt(1, userId);
             final ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
@@ -58,7 +67,7 @@ public class UserDao {
     public void update(User user) {
         try (Connection conn = DbUtil.getConnection(); Scanner sc = new Scanner(System.in)) {
 
-            final PreparedStatement statement = conn.prepareStatement("UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?");
+            final PreparedStatement statement = conn.prepareStatement(UPDATE_USER);
             statement.setString(1, user.getUserName());
             statement.setString(2, user.getEmail());
             statement.setString(3, hashPassword(user.getPassword()));
@@ -77,7 +86,7 @@ public class UserDao {
     }
     public void delete(int userId) {
         try (Connection conn = DbUtil.getConnection()) {
-            final PreparedStatement statement = conn.prepareStatement("DELETE FROM users WHERE id = ?");
+            final PreparedStatement statement = conn.prepareStatement(DELETE_USER);
             statement.setInt(1, userId);
             int affectedRows = statement.executeUpdate();
             if (affectedRows > 0) {
@@ -98,7 +107,7 @@ public class UserDao {
     public User [] readAll() {
         ArrayList<User> list = new ArrayList<>();
         try (Connection conn = DbUtil.getConnection()) {
-            final PreparedStatement statement = conn.prepareStatement("SELECT * FROM users");
+            final PreparedStatement statement = conn.prepareStatement(SELECT_ALL);
             final ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
