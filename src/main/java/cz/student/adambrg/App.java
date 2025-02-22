@@ -5,60 +5,66 @@ import cz.common.DbUtil;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 
 public class App {
     public static void main(String[] args) throws SQLException {
 
-        try (Connection conn = DbUtil.getConnection()) {
-            System.out.println("Connected to the database");
-            //Test vytvoreni uzivatele
-            UserDao userDao = new UserDao();
-            User user = new User();
-            user.setUserName("Karel");
-            user.setEmail("karel.novak4@seznam.cz");
-            user.setPassword("kolobezka");
-            userDao.create(user);
+        Connection conn = DbUtil.getConnection();
+        System.out.println("Connected to the database");
+        //Test vytvoreni uzivatele
+        final UserDao userDao = new UserDao();
+        final User user = new User();
+        user.setUserName("Karel");
+        user.setEmail("karel.novak4@seznam.cz");
+        user.setPassword("kolobezka");
+        userDao.create(user);
 
-            User secondUser = new User();
-            secondUser.setUserName("Jan");
-            secondUser.setEmail("jan.novotny4@seznam.cz");
-            secondUser.setPassword("autobus");
-            userDao.create(secondUser);
+        System.out.println("User created with ID:" + user.getId());
 
-            //Test precteni dat uzivatele
-            User read = userDao.read(2, conn);
-            System.out.println("Data uzivatele" + read);
-            // Test aktualizace udaju uzivatele
-            User userToUpdate = userDao.read(2, conn);
-            userToUpdate.setUserName("kaja");
-            userToUpdate.setEmail("kajanovak@seznam.cz");
-            userToUpdate.setPassword("modrakolobezka");
-            userDao.update(userToUpdate, conn);
+        final User secondUser = new User();
+        secondUser.setUserName("Jan");
+        secondUser.setEmail("jan.novotny4@seznam.cz");
+        secondUser.setPassword("autobus");
+        userDao.create(secondUser);
 
-            // Vypis vsech uzivatelu
-            System.out.println("Data vsech uzivatelu:");
-            List<User> allUsers = userDao.findAll(conn);
+        System.out.println("User created with ID:" + secondUser.getId());
 
-            if (allUsers != null && !allUsers.isEmpty()) {
-                for (User u : allUsers) {
-                    System.out.println(u);
-                }
-            } else {
-                System.out.println("No users found.");
-
-                //Test smazani uzivatelu
-
-                userDao.delete(4, conn);
-                userDao.delete(2, conn);
+        //Test precteni dat uzivatele
+        final User read = userDao.read(2, conn);
+        System.out.println("Data of user with ID: " + read.getId() + ": " + read);
+        // Test aktualizace udaju uzivatele
+        final User userToUpdate = userDao.read(2, conn);
+        userToUpdate.setUserName("kaja");
+        userToUpdate.setEmail("kajanovak@seznam.cz");
+        userToUpdate.setPassword("modrakolobezka");
+        userDao.update(userToUpdate, conn);
 
 
+        System.out.println("User with ID " + userToUpdate.getId() + " updated.");
+
+        // Vypis vsech uzivatelu
+        System.out.println("Data from all users: ");
+        final List<User> allUsers = userDao.findAll(conn);
+
+        if (allUsers != null && !allUsers.isEmpty()) {
+            for (User u : allUsers) {
+                System.out.println(u);
             }
-        } catch (SQLException e) {
-            System.err.println("Connection failed");
-            e.printStackTrace();
+        } else {
+            System.out.println("No users found.");
+
         }
+        //Test smazani uzivatelu
+            userDao.delete(4, conn);
+            userDao.delete(2, conn);
+
+            System.out.println("User with ID: " + user.getId() + "got DELETED from the DATABASE" );
+            System.out.println("User with ID: " + user.getId() + "got DELETED from the DATABASE" );
+
+
+
+
     }
 }
 
