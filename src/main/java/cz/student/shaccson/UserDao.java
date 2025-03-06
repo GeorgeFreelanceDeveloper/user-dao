@@ -1,4 +1,5 @@
 package cz.student.shaccson;
+import cz.common.DbUtil;
 
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -7,98 +8,117 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
-    private final Connection conn;
 
-    public UserDao(final Connection conn) {
-        this.conn = conn;
-    }
+    private static final String CREATE_USER_QUERY =
+            "INSERT INTO users(username, email, password) VALUES (?, ?, ?)";
+    private static final String READ_USER_QUERY =
+            "SELECT * FROM users WHERE id = ?";
+    private static final String UPDATE_USER_QUERY =
+            "UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?";
+    private static final String DELETE_USER_QUERY =
+            "DELETE FROM users WHERE id = ?";
+    private static final String SELECT_ALL_USERS_QUERY =
+            "SELECT * FROM users";
 
-    public void addUser(final User user) {
-        final String query = "INSERT INTO users (email, username, password) VALUES (?, ?, ?)";
-        try (final PreparedStatement statement = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            statement.setString(1, user.getEmail());
-            statement.setString(2, user.getUsername());
+    public User addUser(final User user) {
+        try (final Connection conn = DbUtil.getConnection();
+             final PreparedStatement statement = conn.prepareStatement(CREATE_USER_QUERY, Statement.RETURN_GENERATED_KEYS)) {
+            statement.setString(1, user.getUsername());
+            statement.setString(2, user.getEmail());
             statement.setString(3, hashPassword(user.getPassword()));
             statement.executeUpdate();
 
-            final ResultSet generatedKeys = statement.getGeneratedKeys();
-            if (generatedKeys.next()) {
-                user.setId(generatedKeys.getInt(1));
+            try (final ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    user.setId(generatedKeys.getInt(1));
+                }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (final SQLException e) {
+            System.err.println("Error while adding user: " + e.getMessage());
+            e.printStackTrace(System.err);
         }
+        return null;
     }
 
     public User getUserById(final int id) {
-        final String query = "SELECT * FROM users WHERE id = ?";
-        try (final PreparedStatement statement = conn.prepareStatement(query)) {
-            statement.setInt(1, id);
-            final ResultSet rs = statement.executeQuery();
+        try (final Connection conn = DbUtil.getConnection();
+             final PreparedStatement statement = conn.prepareStatement(READ_USER_QUERY)) {
 
-            if (rs.next()) {
-                final User user = new User();
-                user.setId(rs.getInt("id"));
-                user.setEmail(rs.getString("email"));
-                user.setUsername(rs.getString("username"));
-                user.setPassword(rs.getString("password"));
-                return user;
+            statement.setInt(1, id);
+            try (final ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    final User user = new User();
+                    user.setId(rs.getInt("id"));
+                    user.setUsername(rs.getString("username"));
+                    user.setEmail(rs.getString("email"));
+                    user.setPassword(rs.getString("password"));
+                    return user;
+                }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (final SQLException e) {
+            System.err.println("Error while retrieving user by ID: " + e.getMessage());
+            e.printStackTrace(System.err);
         }
         return null;
     }
 
     public void updateUser(final User user) {
-        final String query = "UPDATE users SET email = ?, username = ?, password = ? WHERE id = ?";
-        try (final PreparedStatement statement = conn.prepareStatement(query)) {
-            statement.setString(1, user.getEmail());
-            statement.setString(2, user.getUsername());
+        try (final Connection conn = DbUtil.getConnection();
+             final PreparedStatement statement = conn.prepareStatement(UPDATE_USER_QUERY)) {
+            statement.setString(1, user.getUsername());
+            statement.setString(2, user.getEmail());
             statement.setString(3, hashPassword(user.getPassword()));
             statement.setInt(4, user.getId());
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
+            final int affectedRows = statement.executeUpdate();
+            if (affectedRows > 0) {
+                System.out.println("User with ID " + user.getId() + " updated successfully.");
+            } else {
+                System.out.println("User update failed. No rows affected.");
+            }
+        } catch (final SQLException e) {
+            System.err.println("Error while updating user: " + e.getMessage());
+            e.printStackTrace(System.err);
         }
     }
 
     public void deleteUser(final int id) {
-        final String query = "DELETE FROM users WHERE id = ?";
-        try (final PreparedStatement statement = conn.prepareStatement(query)) {
+        try (final Connection conn = DbUtil.getConnection();
+             final PreparedStatement statement = conn.prepareStatement(DELETE_USER_QUERY)) {
             statement.setInt(1, id);
             final int affectedRows = statement.executeUpdate();
             if (affectedRows > 0) {
-                System.out.println("User with id %s deleted successfully.".formatted(id));
+                System.out.println("User with ID %d deleted successfully.".formatted(id));
             } else {
-                System.out.println("User delete with id %s failed. No rows affected.".formatted(id));
+                System.out.println("User delete with ID %d failed. No rows affected.".formatted(id));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (final SQLException e) {
+            System.err.println("Error while deleting user: " + e.getMessage());
+            e.printStackTrace(System.err);
         }
     }
 
     public List<User> getAllUsers() {
         final List<User> users = new ArrayList<>();
-        final String query = "SELECT * FROM users";
-        try (final PreparedStatement statement = conn.prepareStatement(query);
+        try (final Connection conn = DbUtil.getConnection();
+             final PreparedStatement statement = conn.prepareStatement(SELECT_ALL_USERS_QUERY);
              final ResultSet rs = statement.executeQuery()) {
 
             while (rs.next()) {
                 final User user = new User();
                 user.setId(rs.getInt("id"));
-                user.setEmail(rs.getString("email"));
                 user.setUsername(rs.getString("username"));
+                user.setEmail(rs.getString("email"));
                 user.setPassword(rs.getString("password"));
                 users.add(user);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (final SQLException e) {
+            System.err.println("Error while fetching all users: " + e.getMessage());
+            e.printStackTrace(System.err);
         }
         return users;
     }
 
-    public String hashPassword(String password) {
+    private String hashPassword(final String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());
     }
 }

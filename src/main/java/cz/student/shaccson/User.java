@@ -3,6 +3,20 @@ package cz.student.shaccson;
 import java.util.Objects;
 
 public class User {
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, email);
+    }
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", username='" + username + '\'' +
+                '}';
+    }
+
     private int id;
     private String email;
     private String username;
@@ -43,18 +57,6 @@ public class User {
         return id == user.id || email.equals(user.email);
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, email);
-    }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", email='" + email + '\'' +
-                ", username='" + username + '\'' +
-                '}';
-    }
 
 }
