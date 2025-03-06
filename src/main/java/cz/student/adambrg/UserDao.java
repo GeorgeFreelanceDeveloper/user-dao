@@ -43,8 +43,8 @@ public class UserDao {
     private static final String UPDATE_USER =
             "UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?";
 
-    public void update(User user, Connection conn) { //metoda pro aktualizovani inforamci uzivatele
-        try {
+    public void update(User user) { //metoda pro aktualizovani inforamci uzivatele
+        try (Connection conn = DbUtil.getConnection()){
             final PreparedStatement statement = conn.prepareStatement(UPDATE_USER);
 
             statement.setString(1, user.getUserName());
@@ -68,9 +68,9 @@ public class UserDao {
     private static final String READ_USER =
             "SELECT * FROM users WHERE id = ?";
 
-    public User read(int userId, Connection conn) { //metoda pro precteni informaci uzivatele
+    public User read(int userId) { //metoda pro precteni informaci uzivatele
 
-        try {
+        try (Connection conn = DbUtil.getConnection()){
            final PreparedStatement statement = conn.prepareStatement(READ_USER);
             statement.setInt(1, userId);
             final ResultSet resultSet = statement.executeQuery();
@@ -94,8 +94,8 @@ public class UserDao {
     private static final String DELETE_USER =
             "DELETE FROM users WHERE id = ?";
 
-    public void delete(int userId, Connection conn) { // metoda pro smazani uzivatele
-        try {
+    public void delete(int userId) { // metoda pro smazani uzivatele
+        try (Connection conn = DbUtil.getConnection()) {
             final PreparedStatement statement = conn.prepareStatement(DELETE_USER);
             statement.setInt(1, userId);
            final int affectedRows = statement.executeUpdate();
@@ -115,8 +115,8 @@ public class UserDao {
     private static final String READ_ALL_USERS =
             "SELECT * FROM users";
 
-    public List<User> findAll(Connection conn) {  //metoda pro zobrazeni vsech uctu
-        try {
+    public List<User> findAll() {  //metoda pro zobrazeni vsech uctu
+        try (Connection conn = DbUtil.getConnection()){
             final List<User> users = new ArrayList<>();
             final PreparedStatement statement = conn.prepareStatement(READ_ALL_USERS);
             final ResultSet resultSet = statement.executeQuery();
